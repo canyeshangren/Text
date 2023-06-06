@@ -179,6 +179,36 @@ class Clock:
         print(self.time_count)
 
 
+class Dictionary:
+    def __init__(self, master):
+        self.windows = tk.Toplevel(master)
+        self.windows.geometry("300x200")
+        self.windows.title("英汉字典")
+        self.search = tk.Button(self.windows, text="搜索", width=8, height=2, command=self.search1)
+        self.entry = tk.Entry(self.windows)
+        self.place_widget()
+
+    def place_widget(self):
+        self.entry.grid(row=1, column=1)
+        self.search.grid(row=1, column=2)
+        self.windows.rowconfigure(0, weight=1)
+        self.windows.rowconfigure(2, weight=3)  # 使得第三行的权重为3，即第一列的高比第3列的高为1:3,使布局更美观
+        self.windows.columnconfigure(0, weight=1)
+        self.windows.columnconfigure(2, weight=1)  # 使得第0列和第2列的权重相同，分配的空间相同，所以第1列就会在中间
+
+    def search1(self):
+        connect = create_connection()
+        cursor = connect.cursor()
+        text = self.entry.get()
+        cursor.execute('select value from dict ' +
+                       f'where word=\'{text}\';')
+        result = cursor.fetchall()
+        result_str = tk.StringVar()
+        result_str.set(result[0][0])
+        label = tk.Label(self.windows, textvariable=result_str)
+        label.grid(row=2, column=1)
+
+
 class TextEditor:
     def __init__(self, master, area):
         self.master = master
@@ -231,6 +261,7 @@ class TextEditor:
 
         self.menu.add_command(label="返回", command=self.hidden)
         self.menu.add_command(label="计时器", command=self.create_time)
+        self.menu.add_command(label="英汉字典", command=self.create_dictionary)
         self.master.config(menu=self.menu)
 
     @staticmethod
@@ -383,6 +414,10 @@ class TextEditor:
     def create_time(self):
         clock = Clock(self.master)
         _ = clock
+
+    def create_dictionary(self):
+        dict1 = Dictionary(self.master)
+        _ = dict1
 
 
 if __name__ == '__main__':
